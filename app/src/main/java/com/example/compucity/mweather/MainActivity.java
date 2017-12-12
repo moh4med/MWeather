@@ -3,11 +3,14 @@ package com.example.compucity.mweather;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.compucity.mweather.data.SunshinePreferences;
 import com.example.compucity.mweather.utilities.NetworkUtils;
@@ -15,18 +18,23 @@ import com.example.compucity.mweather.utilities.OpenWeatherJsonUtils;
 
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity {
-    TextView tv_weatherData, tv_errorMessage;
+public class MainActivity extends AppCompatActivity implements WeatherAdapter.WeatherAdapterOnClickHandler {
+    TextView tv_errorMessage;
     ProgressBar pb_weatherloading;
-
+    RecyclerView mRecycleview;
+    WeatherAdapter mWeatherAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        tv_weatherData = (TextView) findViewById(R.id.tv_weather_data);
         pb_weatherloading = (ProgressBar) findViewById(R.id.pb_loading_data);
         tv_errorMessage = (TextView) findViewById(R.id.error_message_tv);
+        mRecycleview = findViewById(R.id.rv_forecast);
+        mWeatherAdapter = new WeatherAdapter(this);
+        mRecycleview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        mRecycleview.setHasFixedSize(true);
+        mRecycleview.setAdapter(mWeatherAdapter);
         loadWeatherData();
 
     }
@@ -45,11 +53,16 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            tv_weatherData.setText("");
+            mWeatherAdapter.setWeatherDataStrings(null);
             loadWeatherData();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onclick(String s) {
+        Toast.makeText(this,s,Toast.LENGTH_LONG).show();
     }
 
     public class WeatherDataAsyncTask extends AsyncTask<String, Void, String[]> {
@@ -67,9 +80,12 @@ public class MainActivity extends AppCompatActivity {
                 showerrormessage();
             } else {
                 showweatherdata();
-                for (String s : strings) {
-                    tv_weatherData.append(s + "\n\n\n");
-                }
+               /* String []s=new String[20];
+                for (int i=0;i<20;i++){
+                    s[i]=Integer.toString(i);
+                }*/
+                mWeatherAdapter.setWeatherDataStrings(strings);
+               // mWeatherAdapter.setWeatherDataStrings(s);
             }
         }
 
@@ -90,11 +106,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void showerrormessage() {
         tv_errorMessage.setVisibility(View.VISIBLE);
-        tv_weatherData.setVisibility(View.INVISIBLE);
+        mRecycleview.setVisibility(View.INVISIBLE);
     }
 
     private void showweatherdata() {
         tv_errorMessage.setVisibility(View.INVISIBLE);
-        tv_weatherData.setVisibility(View.VISIBLE);
+        mRecycleview.setVisibility(View.VISIBLE);
     }
 }
