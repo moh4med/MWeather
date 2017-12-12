@@ -31,7 +31,8 @@
 
     <!-- For labelling today's forecast [CHAR LIMIT=15] -->
     <string name="today">Today</string>
-
+    <string name="refresh">Refresh</string>
+    <string name="Error">An Error  has been occurred</string>
     <!-- For labelling tomorrow's forecast [CHAR LIMIT=15] -->
     <string name="tomorrow">Tomorrow</string>
 
