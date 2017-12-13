@@ -1,10 +1,13 @@
 package com.example.compucity.mweather;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.We
     ProgressBar pb_weatherloading;
     RecyclerView mRecycleview;
     WeatherAdapter mWeatherAdapter;
-
+    String TAG=MainActivity.class.getSimpleName();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,13 +59,33 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.We
             mWeatherAdapter.setWeatherDataStrings(null);
             loadWeatherData();
             return true;
+        }else if(id==R.id.show_map){
+            showmap();
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void showmap() {
+        String addressString = "1600 Ampitheatre Parkway, CA";
+        Uri geoLocation = Uri.parse("geo:0,0?q=" + addressString);
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(geoLocation);
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Log.d(TAG, "Couldn't call " + geoLocation.toString()
+                    + ", no receiving apps installed!");
+        }
+    }
+
     @Override
     public void onclick(String s) {
-        Toast.makeText(this,s,Toast.LENGTH_LONG).show();
+      //  Toast.makeText(this,s,Toast.LENGTH_LONG).show();
+        Intent intent=new Intent(this,DetailActivity.class);
+        intent.putExtra(Intent.EXTRA_TEXT,s);
+        startActivity(intent);
     }
 
     public class WeatherDataAsyncTask extends AsyncTask<String, Void, String[]> {
