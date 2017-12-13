@@ -1,5 +1,6 @@
 package com.example.compucity.mweather;
 
+import android.app.LoaderManager;
 import android.content.Intent;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -8,7 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity  {
     TextView tv_detailData;
     String detailData;
     private String FORECAST_HASHTAG=" #MWeather";
