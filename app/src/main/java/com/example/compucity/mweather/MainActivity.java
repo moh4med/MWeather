@@ -1,7 +1,9 @@
 package com.example.compucity.mweather;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v7.app.AppCompatActivity;
@@ -23,13 +25,15 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity
         implements WeatherAdapter.WeatherAdapterOnClickHandler
-        , LoaderCallbacks<String[]> {
+        , LoaderCallbacks<String[]>,
+        SharedPreferences.OnSharedPreferenceChangeListener{
     TextView tv_errorMessage;
     ProgressBar pb_weatherloading;
     RecyclerView mRecycleview;
     WeatherAdapter mWeatherAdapter;
     String TAG=MainActivity.class.getSimpleName();
     private static int WEATHER_LOADER_ID=0;
+    private boolean prefence_changed=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +46,8 @@ public class MainActivity extends AppCompatActivity
         mRecycleview.setHasFixedSize(true);
         mRecycleview.setAdapter(mWeatherAdapter);
         getSupportLoaderManager().initLoader(WEATHER_LOADER_ID,null,MainActivity.this);
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -59,12 +65,14 @@ public class MainActivity extends AppCompatActivity
             return true;
         }else if(id==R.id.show_map){
             showmap();
+        }else if(id==R.id.show_setting){
+            startActivity(new Intent(this,SettingsActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void showmap() {
-        String addressString = "1600 Ampitheatre Parkway, CA";
+        String addressString = SunshinePreferences.getPreferredWeatherLocation(this);
         Uri geoLocation = Uri.parse("geo:0,0?q=" + addressString);
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -86,6 +94,21 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(prefence_changed){
+            getSupportLoaderManager().restartLoader(WEATHER_LOADER_ID,null,this);
+            prefence_changed=false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
 
     @Override
     public android.support.v4.content.Loader<String[]> onCreateLoader(int id, Bundle args) {
@@ -152,5 +175,10 @@ public class MainActivity extends AppCompatActivity
     private void showweatherdata() {
         tv_errorMessage.setVisibility(View.INVISIBLE);
         mRecycleview.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+            prefence_changed=true;
     }
 }

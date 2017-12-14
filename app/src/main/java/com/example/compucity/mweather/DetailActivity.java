@@ -16,6 +16,15 @@ public class DetailActivity extends AppCompatActivity  {
 
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+         if(id==R.id.show_setting){
+            startActivity(new Intent(this,SettingsActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);

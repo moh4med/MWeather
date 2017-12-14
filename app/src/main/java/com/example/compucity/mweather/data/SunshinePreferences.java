@@ -16,6 +16,10 @@
 package com.example.compucity.mweather.data;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import com.example.compucity.mweather.R;
 
 public class SunshinePreferences {
 
@@ -88,7 +92,11 @@ public class SunshinePreferences {
      */
     public static String getPreferredWeatherLocation(Context context) {
         /** This will be implemented in a future lesson **/
-        return getDefaultWeatherLocation();
+        //return getDefaultWeatherLocation();
+        SharedPreferences sharedPreferences=PreferenceManager.getDefaultSharedPreferences(context);
+        String key= context.getString(R.string.pref_location_key);
+        String def= context.getString(R.string.pref_location_default);
+       return sharedPreferences.getString(key,def);
     }
 
     /**
@@ -99,7 +107,16 @@ public class SunshinePreferences {
      */
     public static boolean isMetric(Context context) {
         /** This will be implemented in a future lesson **/
-        return true;
+        SharedPreferences sharedPreferences=PreferenceManager.getDefaultSharedPreferences(context);
+        String key= context.getString(R.string.pref_units_key);
+        String def= context.getString(R.string.pref_units_metric);
+        String pref=sharedPreferences.getString(key,def);
+        String met=context.getString(R.string.pref_units_metric);
+        boolean metric=false;
+        if(met.equals(pref)){
+            metric=true;
+        }
+        return metric;
     }
 
     /**
