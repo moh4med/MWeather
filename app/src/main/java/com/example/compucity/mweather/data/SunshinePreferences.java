@@ -21,6 +21,8 @@ import android.preference.PreferenceManager;
 
 import com.example.compucity.mweather.R;
 
+import java.util.concurrent.TimeUnit;
+
 public class SunshinePreferences {
 
     /*
@@ -28,7 +30,7 @@ public class SunshinePreferences {
      * "Mountain View" is more recognizable than 94043.
      */
     public static final String PREF_CITY_NAME = "city_name";
-
+    public static final long DAY_IN_MILLIS = TimeUnit.DAYS.toMillis(1);
     /*
      * In order to uniquely pinpoint the location on the map when we launch the
      * map intent, we store the latitude and longitude.
@@ -98,7 +100,14 @@ public class SunshinePreferences {
         String def= context.getString(R.string.pref_location_default);
        return sharedPreferences.getString(key,def);
     }
+    public static boolean isDateNormalized(long millisSinceEpoch) {
+        boolean isDateNormalized = false;
+        if (millisSinceEpoch % DAY_IN_MILLIS == 0) {
+            isDateNormalized = true;
+        }
 
+        return isDateNormalized;
+    }
     /**
      * Returns true if the user has selected metric temperature display.
      *

@@ -1,5 +1,8 @@
 package com.example.compucity.mweather;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.Log;
@@ -8,23 +11,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.compucity.mweather.data.SunshinePreferences;
+import com.example.compucity.mweather.utilities.SunshineDateUtils;
+import com.example.compucity.mweather.utilities.SunshineWeatherUtils;
+
 /**
  * Created by CompuCity on 12/12/2017.
  */
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherAdapterViewHolder>{
     String TAG=WeatherAdapter.class.getSimpleName();
-    private String []weatherDataStrings;
+    private final Context mContext;
+    private Cursor mCursor;
     WeatherAdapterOnClickHandler mWeatherAdapterOnClickHandler;
     interface WeatherAdapterOnClickHandler{
-        void onclick(String s);
+        void onclick(long date);
     }
-    public void setWeatherDataStrings(String[]s){
-        weatherDataStrings=s;
-        notifyDataSetChanged();
-    }
-    public WeatherAdapter(WeatherAdapterOnClickHandler w){
+    public WeatherAdapter(WeatherAdapterOnClickHandler w,@NonNull Context context){
         mWeatherAdapterOnClickHandler=w;
+        this.mContext=context;
     }
     @Override
     public WeatherAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -36,20 +41,32 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherA
 
     @Override
     public void onBindViewHolder(WeatherAdapterViewHolder holder, int position) {
-        Log.d(TAG,"binding view holder number :"+position);
-        Log.d(TAG,"previous message is:"+holder.tv_weatherdata.getText().toString());
-        Log.d(TAG,"now message is:"+weatherDataStrings[position]);
-        holder.tv_weatherdata.setText(weatherDataStrings[position]);
+        //holder.tv_weatherdata.setText(weatherDataStrings[position]);
+        mCursor.moveToPosition(position);
+        long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
+        String dateString = SunshineDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
+        int weatherId = mCursor.getInt(MainActivity.INDEX_WEATHER_CONDITION_ID);
+        String description = SunshineWeatherUtils.getStringForWeatherCondition(mContext, weatherId);
+        double highInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MAX_TEMP);
+        double lowInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MIN_TEMP);
+        String highAndLowTemperature =
+                SunshineWeatherUtils.formatHighLows(mContext, highInCelsius, lowInCelsius);
+        String weatherSummary = dateString + " - " + description + " - " + highAndLowTemperature;
+        holder.tv_weatherdata.setText(weatherSummary);
     }
 
     @Override
     public int getItemCount() {
-        if(weatherDataStrings==null)return 0;
-        return weatherDataStrings.length;
+        if(mCursor==null)return 0;
+        return mCursor.getCount();
     }
-
+    public void swapCursor(Cursor cursor){
+        mCursor=cursor;
+        notifyDataSetChanged();
+    }
     public class WeatherAdapterViewHolder extends ViewHolder implements View.OnClickListener{
-        TextView tv_weatherdata;
+        final TextView tv_weatherdata;
+
         public WeatherAdapterViewHolder(View itemView) {
             super(itemView);
             Log.d(TAG,"In view holder");
@@ -59,8 +76,10 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherA
 
         @Override
         public void onClick(View view) {
-            mWeatherAdapterOnClickHandler.onclick(weatherDataStrings[getAdapterPosition()]);
-        }
+            int adapterPosition = getAdapterPosition();
+            mCursor.moveToPosition(adapterPosition);
+            long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
+            mWeatherAdapterOnClickHandler.onclick(dateInMillis);        }
     }
 
 }
