@@ -10,11 +10,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.Switch;
 
+import com.example.compucity.mweather.utilities.SunshineDateUtils;
+
 /**
  * Created by CompuCity on 12/14/2017.
  */
 
-public class WeatherPovider extends ContentProvider {
+public class WeatherProvider extends ContentProvider {
     private WeatherDpHelper mopenHelper;
     public static final int CODE_WEATHER = 100;
     public static final int CODE_WEATHER_WITH_DATE = 101;
@@ -70,7 +72,7 @@ public class WeatherPovider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown Uri:" + uri);
         }
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
-        return null;
+        return cursor;
     }
 
     @Nullable
@@ -88,36 +90,40 @@ public class WeatherPovider extends ContentProvider {
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         final SQLiteDatabase db = mopenHelper.getWritableDatabase();
+
         switch (muriMatcher.match(uri)) {
-            case CODE_WEATHER: {
+
+            case CODE_WEATHER:
                 db.beginTransaction();
-                int rowinserted = 0;
+                int rowsInserted = 0;
                 try {
-                    for (ContentValues val : values) {
-                        long weatherDate = val.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE);
-                        if (SunshinePreferences.isDateNormalized(weatherDate)) {
-                            throw new IllegalArgumentException("Date must be normalized!");
+                    for (ContentValues value : values) {
+                        long weatherDate =
+                                value.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE);
+                        if (!SunshineDateUtils.isDateNormalized(weatherDate)) {
+                            throw new IllegalArgumentException("Date must be normalized to insert");
                         }
-                        long id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, val);
-                        if (id != -1) {
-                            rowinserted++;
+
+                        long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            rowsInserted++;
                         }
                     }
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
                 }
-                if (rowinserted > 0) {
+
+                if (rowsInserted > 0) {
                     getContext().getContentResolver().notifyChange(uri, null);
                 }
-                return rowinserted;
-            }
+
+                return rowsInserted;
 
             default:
                 return super.bulkInsert(uri, values);
         }
     }
-
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionarg) {
         int rowdeleted = 0;

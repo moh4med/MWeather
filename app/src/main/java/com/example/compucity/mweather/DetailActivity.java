@@ -55,14 +55,6 @@ public class DetailActivity
     private Uri mUri;
     private static final int ID_DETAIL_LOADER = 353;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.show_setting) {
-            startActivity(new Intent(this, SettingsActivity.class));
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,20 +72,34 @@ public class DetailActivity
         getSupportLoaderManager().initLoader(ID_DETAIL_LOADER, null, this);
     }
 
-    Intent getShareIntent() {
-        Intent intent = ShareCompat.IntentBuilder.from(this)
-                .setType("text/plain")
-                .setText(detailData + FORECAST_HASHTAG)
-                .getIntent();
-        return intent;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.detail, menu);
         MenuItem item = menu.findItem(R.id.action_share);
         item.setIntent(getShareIntent());
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.show_setting) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }else if(id==R.id.action_share){
+            Intent intent=getShareIntent();
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    Intent getShareIntent() {
+        Intent intent = ShareCompat.IntentBuilder.from(this)
+                .setType("text/plain")
+                .setText(detailData + FORECAST_HASHTAG)
+                .getIntent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        return intent;
     }
 
     @Override
@@ -117,7 +123,6 @@ public class DetailActivity
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         boolean cursorHasValidData = false;
         if (data != null && data.moveToFirst()) {
-            /* We have valid data, continue on to bind the data to the UI */
             cursorHasValidData = true;
         }
 

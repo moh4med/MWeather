@@ -1,5 +1,6 @@
 package com.example.compucity.mweather;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -22,6 +23,8 @@ import android.widget.TextView;
 
 import com.example.compucity.mweather.data.SunshinePreferences;
 import com.example.compucity.mweather.data.WeatherContract;
+import com.example.compucity.mweather.sync.WeatherSyncUtils;
+import com.example.compucity.mweather.utilities.FakeDataUtils;
 import com.example.compucity.mweather.utilities.NetworkUtils;
 import com.example.compucity.mweather.utilities.OpenWeatherJsonUtils;
 
@@ -36,21 +39,23 @@ public class MainActivity extends AppCompatActivity
             WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
             WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
     };
+    public static final int INDEX_WEATHER_DATE = 0;
+    public static final int INDEX_WEATHER_MAX_TEMP = 1;
+    public static final int INDEX_WEATHER_MIN_TEMP = 2;
+    public static final int INDEX_WEATHER_CONDITION_ID = 3;
     private static final int ID_FORECAST_LOADER = 44;
     ProgressBar pb_weatherloading;
     RecyclerView mRecycleview;
     WeatherAdapter mWeatherAdapter;
     String TAG = MainActivity.class.getSimpleName();
-    public static final int INDEX_WEATHER_DATE = 0;
-    public static final int INDEX_WEATHER_MAX_TEMP = 1;
-    public static final int INDEX_WEATHER_MIN_TEMP = 2;
-    public static final int INDEX_WEATHER_CONDITION_ID = 3;
     private int mPosition = RecyclerView.NO_POSITION;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getSupportActionBar().setElevation(0f);
+
         pb_weatherloading = (ProgressBar) findViewById(R.id.pb_loading_data);
         mRecycleview = findViewById(R.id.rv_forecast);
         mWeatherAdapter = new WeatherAdapter(this, this);
@@ -58,8 +63,8 @@ public class MainActivity extends AppCompatActivity
         mRecycleview.setHasFixedSize(true);
         mRecycleview.setAdapter(mWeatherAdapter);
         showLoading();
-        getSupportLoaderManager().initLoader(ID_FORECAST_LOADER, null, MainActivity.this);
-
+        getSupportLoaderManager().initLoader(ID_FORECAST_LOADER, null, this);
+         WeatherSyncUtils.Initialize(this);
     }
 
     private void showLoading() {
@@ -78,8 +83,10 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         if (id == R.id.show_map) {
             showmap();
+            return true;
         } else if (id == R.id.show_setting) {
             startActivity(new Intent(this, SettingsActivity.class));
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -117,6 +124,27 @@ public class MainActivity extends AppCompatActivity
         super.onDestroy();
     }
 
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.v(TAG,"creating loader");
+        switch (id) {
+            case ID_FORECAST_LOADER:
+                Uri forecastQueryUri = WeatherContract.WeatherEntry.CONTENT_URI;
+                String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+                String selection = WeatherContract.WeatherEntry.getSqlSelectForTodayOnwards();
+                CursorLoader cursorLoader= new CursorLoader(this,
+                        forecastQueryUri,
+                        MAIN_FORECAST_PROJECTION,
+                        selection,
+                        null,
+                        sortOrder);
+                return cursorLoader;
+
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + id);
+        }
+    }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mWeatherAdapter.swapCursor(data);
@@ -133,26 +161,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mWeatherAdapter.swapCursor(null);
-    }
-
-    @Override
-    public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case ID_FORECAST_LOADER:
-                Uri forecastQueryUri = WeatherContract.WeatherEntry.CONTENT_URI;
-                String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-                String selection = WeatherContract.WeatherEntry.getSqlSelectForTodayOnwards();
-
-                return new CursorLoader(this,
-                        forecastQueryUri,
-                        MAIN_FORECAST_PROJECTION,
-                        selection,
-                        null,
-                        sortOrder);
-
-            default:
-                throw new RuntimeException("Loader Not Implemented: " + id);
-        }
     }
 
 }

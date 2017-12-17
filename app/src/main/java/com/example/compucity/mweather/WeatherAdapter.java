@@ -19,23 +19,26 @@ import com.example.compucity.mweather.utilities.SunshineWeatherUtils;
  * Created by CompuCity on 12/12/2017.
  */
 
-public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherAdapterViewHolder>{
-    String TAG=WeatherAdapter.class.getSimpleName();
+public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherAdapterViewHolder> {
+    String TAG = WeatherAdapter.class.getSimpleName();
     private final Context mContext;
     private Cursor mCursor;
     WeatherAdapterOnClickHandler mWeatherAdapterOnClickHandler;
-    interface WeatherAdapterOnClickHandler{
+
+    interface WeatherAdapterOnClickHandler {
         void onclick(long date);
     }
-    public WeatherAdapter(WeatherAdapterOnClickHandler w,@NonNull Context context){
-        mWeatherAdapterOnClickHandler=w;
-        this.mContext=context;
+
+    public WeatherAdapter(WeatherAdapterOnClickHandler w, @NonNull Context context) {
+        mWeatherAdapterOnClickHandler = w;
+        this.mContext = context;
     }
+
     @Override
     public WeatherAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.d(TAG,"creating view holder");
-        LayoutInflater inflater=LayoutInflater.from(parent.getContext());
-        View view=inflater.inflate(R.layout.forecast_list_item,parent,false);
+        Log.d(TAG, "creating view holder");
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View view = inflater.inflate(R.layout.forecast_list_item, parent, false);
         return new WeatherAdapterViewHolder(view);
     }
 
@@ -57,20 +60,24 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherA
 
     @Override
     public int getItemCount() {
-        if(mCursor==null)return 0;
+        if (mCursor == null) return 0;
         return mCursor.getCount();
     }
-    public void swapCursor(Cursor cursor){
-        mCursor=cursor;
+
+    public void swapCursor(Cursor cursor) {
+        mCursor = cursor;
         notifyDataSetChanged();
     }
-    public class WeatherAdapterViewHolder extends ViewHolder implements View.OnClickListener{
+
+    public class WeatherAdapterViewHolder
+            extends ViewHolder
+            implements View.OnClickListener {
         final TextView tv_weatherdata;
 
         public WeatherAdapterViewHolder(View itemView) {
             super(itemView);
-            Log.d(TAG,"In view holder");
-            tv_weatherdata=(TextView)itemView.findViewById(R.id.tv_weather_data);
+            Log.d(TAG, "In view holder");
+            tv_weatherdata = (TextView) itemView.findViewById(R.id.tv_weather_data);
             itemView.setOnClickListener(this);
         }
 
@@ -79,7 +86,8 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherA
             int adapterPosition = getAdapterPosition();
             mCursor.moveToPosition(adapterPosition);
             long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
-            mWeatherAdapterOnClickHandler.onclick(dateInMillis);        }
+            mWeatherAdapterOnClickHandler.onclick(dateInMillis);
+        }
     }
 
 }
