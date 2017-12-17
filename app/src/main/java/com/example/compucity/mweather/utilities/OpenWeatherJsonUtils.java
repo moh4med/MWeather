@@ -19,7 +19,7 @@ import android.content.ContentValues;
 import android.content.Context;
 
 
-import com.example.compucity.mweather.data.SunshinePreferences;
+import com.example.compucity.mweather.data.WeatherPreferences;
 import com.example.compucity.mweather.data.WeatherContract;
 
 import org.json.JSONArray;
@@ -197,7 +197,7 @@ public final class OpenWeatherJsonUtils {
         double cityLatitude = cityCoord.getDouble(OWM_LATITUDE);
         double cityLongitude = cityCoord.getDouble(OWM_LONGITUDE);
 
-        SunshinePreferences.setLocationDetails(context, cityLatitude, cityLongitude);
+        WeatherPreferences.setLocationDetails(context, cityLatitude, cityLongitude);
 
         ContentValues[] weatherContentValues = new ContentValues[jsonWeatherArray.length()];
 

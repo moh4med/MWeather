@@ -22,7 +22,7 @@ import android.preference.PreferenceManager;
 import com.example.compucity.mweather.R;
 
 
-public final class SunshinePreferences {
+public final class WeatherPreferences {
 
     /*
      * In order to uniquely pinpoint the location on the map when we launch the map intent, we
@@ -74,6 +74,28 @@ public final class SunshinePreferences {
      * @return Location The current user has set in SharedPreferences. Will default to
      * "94043,USA" if SharedPreferences have not been implemented yet.
      */
+    public static boolean areNotificationsEnabled(Context context) {
+        /* Key for accessing the preference for showing notifications */
+        String displayNotificationsKey = context.getString(R.string.pref_enable_notifications_key);
+
+        /*
+         * In Sunshine, the user has the ability to say whether she would like notifications
+         * enabled or not. If no preference has been chosen, we want to be able to determine
+         * whether or not to show them. To do this, we reference a bool stored in bools.xml.
+         */
+        boolean shouldDisplayNotificationsByDefault = context
+                .getResources()
+                .getBoolean(R.bool.show_notifications_by_default);
+
+        /* As usual, we use the default SharedPreferences to access the user's preferences */
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+
+        /* If a value is stored with the key, we extract it here. If not, use a default. */
+        boolean shouldDisplayNotifications = sp
+                .getBoolean(displayNotificationsKey, shouldDisplayNotificationsByDefault);
+
+        return shouldDisplayNotifications;
+    }
     public static String getPreferredWeatherLocation(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -194,7 +216,7 @@ public final class SunshinePreferences {
      */
     public static long getEllapsedTimeSinceLastNotification(Context context) {
         long lastNotificationTimeMillis =
-                SunshinePreferences.getLastNotificationTimeInMillis(context);
+                WeatherPreferences.getLastNotificationTimeInMillis(context);
         long timeSinceLastNotification = System.currentTimeMillis() - lastNotificationTimeMillis;
         return timeSinceLastNotification;
     }

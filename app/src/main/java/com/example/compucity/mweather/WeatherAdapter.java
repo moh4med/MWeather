@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.compucity.mweather.data.SunshinePreferences;
 import com.example.compucity.mweather.utilities.SunshineDateUtils;
 import com.example.compucity.mweather.utilities.SunshineWeatherUtils;
 

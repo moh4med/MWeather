@@ -1,13 +1,9 @@
 package com.example.compucity.mweather;
 
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -19,16 +15,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.example.compucity.mweather.data.SunshinePreferences;
+import com.example.compucity.mweather.data.WeatherPreferences;
 import com.example.compucity.mweather.data.WeatherContract;
 import com.example.compucity.mweather.sync.WeatherSyncUtils;
-import com.example.compucity.mweather.utilities.FakeDataUtils;
-import com.example.compucity.mweather.utilities.NetworkUtils;
-import com.example.compucity.mweather.utilities.OpenWeatherJsonUtils;
-
-import java.net.URL;
 
 public class MainActivity extends AppCompatActivity
         implements WeatherAdapter.WeatherAdapterOnClickHandler
@@ -92,7 +82,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showmap() {
-        String addressString = SunshinePreferences.getPreferredWeatherLocation(this);
+        String addressString = WeatherPreferences.getPreferredWeatherLocation(this);
         Uri geoLocation = Uri.parse("geo:0,0?q=" + addressString);
 
         Intent intent = new Intent(Intent.ACTION_VIEW);

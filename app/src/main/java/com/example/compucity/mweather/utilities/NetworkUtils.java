@@ -19,7 +19,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-import com.example.compucity.mweather.data.SunshinePreferences;
+import com.example.compucity.mweather.data.WeatherPreferences;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,13 +66,13 @@ public final class NetworkUtils {
 
 
     public static URL getUrl(Context context) {
-        if (SunshinePreferences.isLocationLatLonAvailable(context)) {
-            double[] preferredCoordinates = SunshinePreferences.getLocationCoordinates(context);
+        if (WeatherPreferences.isLocationLatLonAvailable(context)) {
+            double[] preferredCoordinates = WeatherPreferences.getLocationCoordinates(context);
             double latitude = preferredCoordinates[0];
             double longitude = preferredCoordinates[1];
             return buildUrlWithLatitudeLongitude(latitude, longitude);
         } else {
-            String locationQuery = SunshinePreferences.getPreferredWeatherLocation(context);
+            String locationQuery = WeatherPreferences.getPreferredWeatherLocation(context);
             return buildUrlWithLocationQuery(locationQuery);
         }
     }
